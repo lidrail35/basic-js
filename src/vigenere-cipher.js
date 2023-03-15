@@ -20,22 +20,67 @@ const { NotImplementedError } = require('../extensions/index.js');
  * 
  */
 class VigenereCipheringMachine {
-  
+
+  constructor(direction = true) {
+    this.direction = direction;
+  }
+
+  verifyVariable(a, b) {
+    if ( (typeof a == 'undefined') || (typeof b == 'undefined') ) {
+      throw new Error("Incorrect arguments!") ;
+    };
+  }
+
   encrypt(text, key) {
+    this.verifyVariable(text, key);
+     
+    let codestr = [];
+    let textCode, 
+        keyCode, 
+        encryptCode;
+    let offset = 0;
     key = key.toUpperCase();
     text = text.toUpperCase();
-    keyLen = key.length;
-    textLen = text.length;
       for (let i = 0; i < text.length; i++) {
-        text         
+        if ( (text[i] < 'A') || (text[i] > 'Z') ) {
+          codestr.push(text[i]);
+          offset++;
+          continue;
+        } 
+        textCode = text[i].charCodeAt();
+        keyCode = key[(i - offset) % key.length].charCodeAt();
+        encryptCode = String.fromCharCode( (( textCode + keyCode) % 26) + 65);
+        codestr.push(encryptCode);
       }
+    return this.direction ? codestr.join('') : codestr.reverse().join('');
+   }
 
-  }
-
-  decrypt() {
-    throw new NotImplementedError('Not implemented');
-    // remove line with error and write your code here
-  }
+  decrypt(text, key) {
+    this.verifyVariable(text, key);
+    
+    let codestr = [];
+    let textCode,
+        keyCode, 
+        decryptCode
+    let offset = 0;
+    key = key.toUpperCase();
+    for (let i = 0; i < text.length; i++) {
+      if ( (text[i] < 'A') || (text[i] > 'Z') ) {
+       codestr.push(text[i]);
+        offset++;
+        continue;
+      } 
+      textCode = text[i].charCodeAt();
+      keyCode = key[(i - offset) % key.length].charCodeAt();
+     
+      (textCode < keyCode) ? 
+              decryptCode = String.fromCharCode( (( textCode - keyCode) % 26) + 91) :
+              decryptCode = String.fromCharCode( (( textCode - keyCode) % 26) + 65)
+      
+      codestr.push(decryptCode);
+       }
+    return this.direction ? codestr.join('') : codestr.reverse().join(''); 
+  };
 }
 
 module.exports = {
